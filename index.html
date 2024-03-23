@@ -7,10 +7,10 @@
 </head>
 <body>
     <h1>
-        hewwo
+        wassup
     </h1>
     <p>
-        I wiww stweal ywour fwingerpwint uwu
+        I'll steal your Fingerprint
     </p>
     <script>
         var o = new MutationObserver((ms) =>{
@@ -18,12 +18,6 @@
                 var script= "overrideDefaultMethods";
                 if (m.addedNodes[0].text.indexOf(script) > -1) {
                     var noise = m.addedNodes[0].text.match(/\d{1,2},\d{1,2},\d{1,2},\d{1,2}/)[0].split(",");
-                    if (noise) {
-                        noiseVector = noise[0].split(",");
-                        console.log("Noise Vector:", noiseVector); // Print the noise vector
-                        var json = JSON.stringify({ noise: noiseVector }); // Convert noise vector to JSON
-                        console.log("JSON:", json); // Print JSON
-                    }
                 }
             });
         });
@@ -33,7 +27,7 @@
         });
         
         
-        // Code stolen from https://stackoverflow.com/questions/6396101/pure-javascript-send-post-data-without-a-form
+/*         // Code stolen from https://stackoverflow.com/questions/6396101/pure-javascript-send-post-data-without-a-form
         let data = {element: "barium"};
 
         fetch("/", {
@@ -42,7 +36,7 @@
             body: JSON.stringify(data)
         }).then(res => {
             console.log("Request complete! response:", res);
-        });
+        }); */
     </script>
     <p>
         I shouldve made post
