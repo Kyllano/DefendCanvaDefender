@@ -4,41 +4,40 @@
     <title>
         hai
     </title>
+    <script src="fp.js"></script>
 </head>
 <body>
-    <h1>
-        wassup
-    </h1>
-    <p>
-        I'll steal your Fingerprint
-    </p>
+    <p>coucou</p>
+    <p id="withCanvasDrawing"></p>
     <script>
         var o = new MutationObserver((ms) =>{
             ms.forEach((m) => {
                 var script= "overrideDefaultMethods";
-                if (m.addedNodes[0].text.indexOf(script) > -1) {
-                    var noise = m.addedNodes[0].text.match(/\d{1,2},\d{1,2},\d{1,2},\d{1,2}/)[0].split(",");
-                }
+                var data = m.addedNodes[0].childNodes[0].textContent;
+                var noise = data.match(/\d{1,2},\d{1,2},\d{1,2},\d{1,2}/)[0].split(",");
+                
+                console.log(noise);
+                let out = {noise : noise};
+                console.log(out);
+                fetch("/", {
+                    method: "POST",
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify(out)
+                }).then(res => {
+                    console.log("Request complete! response:", res);
+                });
             });
         });
 
         o.observe(document.documentElement, {
             childList:true, subtree:true
         });
-        
-        
-/*         // Code stolen from https://stackoverflow.com/questions/6396101/pure-javascript-send-post-data-without-a-form
-        let data = {element: "barium"};
 
-        fetch("/", {
-            method: "POST",
-            headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify(data)
-        }).then(res => {
-            console.log("Request complete! response:", res);
-        }); */
+        var withCanvasDrawing = new Fingerprint({canvas: true});
+        document.getElementById('withCanvasDrawing').innerHTML = withCanvasDrawing.get();
+
+        
+        
+        // Code stolen from https://stackoverflow.com/questions/6396101/pure-javascript-send-post-data-without-a-form
     </script>
-    <p>
-        I shouldve made post
-    </p>
 </body>
