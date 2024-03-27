@@ -1,3 +1,6 @@
+https://github.com/artem0/canvas-fingerprinting
+
+
 var Fingerprint = function (options) {
     var nativeForEach, nativeMap;
     nativeForEach = Array.prototype.forEach;
