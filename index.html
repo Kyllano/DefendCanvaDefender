@@ -1,45 +1,73 @@
 <!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <title>
-        hai
-    </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Fingerprinting</title>
     <script src="fp.js"></script>
 </head>
+
 <body>
-    <p>coucou</p>
-    <p id="withCanvasDrawing"></p>
+    <h1>Canvas Fingerprinting</h1>
+    <p id="fingerprint"></p>
+
     <script>
-        //modified code from paper
-        var o = new MutationObserver((ms) =>{
-            ms.forEach((m) => {
-                var script= "overrideDefaultMethods";
-                var data = m.addedNodes[0].childNodes[0].textContent;
-                var noise = data.match(/\d{1,2},\d{1,2},\d{1,2},\d{1,2}/)[0].split(",");
-                
-                console.log(noise);
-                let out = {noise : noise};
-                console.log(out);
-                // Code stolen from https://stackoverflow.com/questions/6396101/pure-javascript-send-post-data-without-a-form
-                fetch("/", {
-                    method: "POST",
-                    headers: {'Content-Type': 'application/json'}, 
-                    body: JSON.stringify(out)
-                }).then(res => {
-                    console.log("Request complete! response:", res);
-                });
+        // Crée une instance de la classe Fingerprint
+        const fingerprint = new Fingerprint();
+
+        // Définit l'observateur de mutation pour détecter le vecteur de bruit
+        const observer = new MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+                console.log(mutation.addedNodes);
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    const addedNode = mutation.addedNodes[0];
+                    if (addedNode.nodeName === 'SCRIPT' && addedNode.textContent.includes('overrideDefaultMethods')) {
+                        const noiseMatch = addedNode.textContent.match(/\d{1,2},\d{1,2},\d{1,2},\d{1,2}/);
+                        // var noise = ['26', '9', '13', '27'] R G B A 
+                        // pour extraire il faut enlever a chaque pixel le bruit rajouter
+                        // la valeur par defaut d'un pixel est 0
+                        if (noiseMatch) {
+                            const noise = noiseMatch[0].split(',').map(Number);
+                            const canvasFingerprint = fingerprint.getCanvasFingerprint(noise);
+                            document.getElementById('fingerprint').innerText = `Canvas Fingerprint: ${canvasFingerprint}`;
+
+                            // Envoie la fingerprint et le vecteur de bruit au serveur
+                            fetch('/fetch', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    fingerprint: canvasFingerprint,
+                                    noise: noise,
+                                }),
+                            })
+                                .then(response => response.json())
+                                .then(data => console.log(data))
+                                .catch((error) => console.error('Error:', error));
+                        }
+                    }
+                }
             });
         });
 
-        o.observe(document.documentElement, {
-            childList:true, subtree:true
-        });
+        // Observe les modifications dans le document
+        observer.observe(document, { childList: true, subtree: true });
 
-        //https://github.com/artem0/canvas-fingerprinting
-        var withCanvasDrawing = new Fingerprint({canvas: true});
-        document.getElementById('withCanvasDrawing').innerHTML = withCanvasDrawing.get();
+        // Crée un canvas et obtient sa fingerprint
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
 
-        
-        
+        canvas.width = 200;
+        canvas.height = 100;
+
+        ctx.font = '20px Arial';
+        ctx.fillText('Hello, World!', 10, 50);
+
+        const canvasFingerprint = fingerprint.getCanvasFingerprint();
+        document.getElementById('fingerprint').innerText = `Canvas Fingerprint: ${canvasFingerprint}`;
     </script>
 </body>
+
+</html
